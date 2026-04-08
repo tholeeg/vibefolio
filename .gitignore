@@ -14,3 +14,4 @@ dist-ssr/
 .vscode/
 !.vscode/extensions.json
 .idea/
+.vercel

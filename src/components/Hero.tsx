@@ -14,86 +14,6 @@ const MODE_LABELS: Record<SphereMode, string> = {
   kinetic: "KINETIC",
 };
 
-function HeroWord({ text, className }: { text: string; className?: string }) {
-  const wrapRef = useRef<HTMLSpanElement>(null);
-  const charsRef = useRef<(HTMLSpanElement | null)[]>([]);
-
-  const handleEnter = () => {};
-
-  const handleLeave = () => {
-    gsap.to(wrapRef.current, {
-      x: 0,
-      y: 0,
-      duration: 0.6,
-      ease: "elastic.out(1, 0.4)",
-    });
-  };
-
-  const handleMove = (e: React.MouseEvent) => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const dx = e.clientX - rect.left - rect.width / 2;
-    const dy = e.clientY - rect.top - rect.height / 2;
-    gsap.to(el, {
-      x: dx * 0.12,
-      y: dy * 0.25,
-      duration: 0.3,
-      ease: "power2.out",
-    });
-  };
-
-  const handleClick = () => {
-    charsRef.current.forEach((el, i) => {
-      if (!el) return;
-      const rx = (Math.random() - 0.5) * 60;
-      const ry = (Math.random() - 0.5) * 40;
-      const rot = (Math.random() - 0.5) * 30;
-      gsap
-        .timeline()
-        .to(el, {
-          x: rx,
-          y: ry,
-          rotation: rot,
-          opacity: 0.3,
-          duration: 0.25,
-          ease: "power3.out",
-          delay: i * 0.02,
-        })
-        .to(el, {
-          x: 0,
-          y: 0,
-          rotation: 0,
-          opacity: 1,
-          duration: 0.5,
-          ease: "elastic.out(1, 0.35)",
-        });
-    });
-  };
-
-  return (
-    <span
-      ref={wrapRef}
-      className={`hero-line block cursor-pointer select-none ${className ?? ""}`}
-      style={{ display: "inline-block", willChange: "transform" }}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-      onMouseMove={handleMove}
-      onClick={handleClick}
-    >
-      {text.split("").map((ch, i) => (
-        <span
-          key={i}
-          ref={(el) => { charsRef.current[i] = el; }}
-          style={{ display: "inline-block", willChange: "transform" }}
-        >
-          {ch}
-        </span>
-      ))}
-    </span>
-  );
-}
-
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -152,20 +72,14 @@ export default function Hero() {
       >
       <CellShadedSphere mode={sphereMode} />
 
-      <div className="relative z-10 max-w-7xl">
+      <div className="relative z-10 max-w-7xl pointer-events-none">
         <h1
-          className="font-headline font-black leading-[0.85] kerning-tight"
+          className="font-headline font-black leading-[0.85] kerning-tight select-none"
           style={{ fontSize: "clamp(3.5rem, 12vw, 15rem)" }}
         >
-          <span className="block overflow-hidden">
-            <HeroWord text="VIBE" />
-          </span>
-          <span className="block overflow-hidden">
-            <HeroWord text="CODING" />
-          </span>
-          <span className="block overflow-hidden">
-            <HeroWord text="CREATIVE." className="text-primary-fixed" />
-          </span>
+          <span className="hero-line block overflow-hidden">VIBE</span>
+          <span className="hero-line block overflow-hidden">CODING</span>
+          <span className="hero-line block overflow-hidden text-primary-fixed">CREATIVE.</span>
         </h1>
       </div>
 
