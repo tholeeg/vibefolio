@@ -5,6 +5,7 @@ import { lenisStore } from "../lenisStore";
 const NAV_LINKS = [
   { label: "PROJETS", target: "#projets" },
   { label: "METHODOLOGY", target: "#methodology" },
+  { label: "LAB", target: "#lab" },
 ];
 
 const SCROLL_EASING = (t: number) =>
@@ -134,8 +135,17 @@ export default function NavBar() {
             onNav={handleNav}
           />
         ))}
-        <button className="text-[#00FFFF] transition-all duration-300 hover:bg-white/5 p-2">
-          <span className="material-symbols-outlined">terminal</span>
+        <button
+          type="button"
+          aria-label="Open command palette"
+          data-cursor="link"
+          onClick={() => window.dispatchEvent(new CustomEvent("vibefolio:cmdk"))}
+          className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.02] px-2.5 py-1.5 text-[#00FFFF] transition-all duration-300 hover:border-cyan-glow/40 hover:bg-white/[0.05]"
+        >
+          <span className="material-symbols-outlined text-base">terminal</span>
+          <kbd className="font-label hidden text-[9px] uppercase tracking-[0.25em] text-white/55 md:inline">
+            ⌘K
+          </kbd>
         </button>
       </div>
     </nav>

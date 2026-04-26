@@ -92,7 +92,11 @@ export default function Lab() {
   }, [prefersReducedMotion]);
 
   return (
-    <section ref={sectionRef} className="relative w-full px-6 md:px-12 py-20 md:py-28">
+    <section
+      id="lab"
+      ref={sectionRef}
+      className="relative w-full px-6 md:px-12 py-20 md:py-28"
+    >
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className="mb-10 flex flex-col gap-2 md:mb-14">
         <span className="font-label text-[10px] uppercase tracking-[0.32em] text-cyan-glow/85">
