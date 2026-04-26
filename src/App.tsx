@@ -12,6 +12,7 @@ import NavBar from "./components/NavBar";
 import Hero from "./components/Hero";
 import ProjectGrid from "./components/ProjectGrid";
 import Methodology from "./components/Methodology";
+import Lab from "./components/Lab";
 import SectionDivider from "./components/SectionDivider";
 import Footer from "./components/Footer";
 import StandaloneProjectCard from "./components/StandaloneProjectCard";
@@ -102,6 +103,8 @@ export default function App() {
           <ProjectGrid />
           <SectionDivider index="02" label="METHODOLOGY" next="PROCESS" />
           <Methodology />
+          <SectionDivider index="03" label="LAB" next="EXPERIMENTS" />
+          <Lab />
         </main>
         <Footer />
       </div>
