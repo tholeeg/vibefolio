@@ -12,6 +12,7 @@ import NavBar from "./components/NavBar";
 import Hero from "./components/Hero";
 import ProjectGrid from "./components/ProjectGrid";
 import Methodology from "./components/Methodology";
+import SectionDivider from "./components/SectionDivider";
 import Footer from "./components/Footer";
 import StandaloneProjectCard from "./components/StandaloneProjectCard";
 
@@ -97,7 +98,9 @@ export default function App() {
       >
         <main className="min-h-0 min-w-0 w-full max-w-full pb-0">
           <Hero />
+          <SectionDivider index="01" label="OUTPUTS" next="PROJECTS" />
           <ProjectGrid />
+          <SectionDivider index="02" label="METHODOLOGY" next="PROCESS" />
           <Methodology />
         </main>
         <Footer />
