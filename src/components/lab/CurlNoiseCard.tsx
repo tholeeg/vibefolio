@@ -75,11 +75,23 @@ export default function CurlNoiseCard() {
     let t = 0;
     let raf = 0;
     let last = performance.now();
+    let onscreen = false;
+
+    const io = new IntersectionObserver(
+      ([e]) => {
+        onscreen = !!e?.isIntersecting;
+      },
+      { rootMargin: "80px" },
+    );
+    io.observe(cvs);
 
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       const m = readMotion();
-      if (!m.isPageVisible) return;
+      if (!m.isPageVisible || !onscreen) {
+        last = now;
+        return;
+      }
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       if (!m.prefersReducedMotion) t += dt;
@@ -111,6 +123,7 @@ export default function CurlNoiseCard() {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
     };
   }, []);
 

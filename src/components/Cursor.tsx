@@ -51,12 +51,44 @@ export default function Cursor() {
     let visible = false;
     let variant: CursorVariant = "default";
     let raf = 0;
+    let running = false;
 
     const setVariant = (next: CursorVariant) => {
       if (next === variant) return;
       variant = next;
       ring.dataset.variant = next;
       dot.dataset.variant = next;
+    };
+
+    /* ── Animation loop ────────────────────────────────────── */
+
+    const tick = () => {
+      ringX += (targetX - ringX) * RING_LERP;
+      ringY += (targetY - ringY) * RING_LERP;
+      dotX += (targetX - dotX) * DOT_LERP;
+      dotY += (targetY - dotY) * DOT_LERP;
+
+      ring.style.transform = `translate3d(${ringX.toFixed(1)}px, ${ringY.toFixed(1)}px, 0) translate(-50%, -50%)`;
+      dot.style.transform = `translate3d(${dotX.toFixed(1)}px, ${dotY.toFixed(1)}px, 0) translate(-50%, -50%)`;
+
+      /* Auto-suspend the rAF once the lerp has fully settled.
+         A new pointermove will resume immediately. */
+      const settled =
+        Math.abs(targetX - ringX) < 0.1 &&
+        Math.abs(targetY - ringY) < 0.1 &&
+        Math.abs(targetX - dotX) < 0.1 &&
+        Math.abs(targetY - dotY) < 0.1;
+      if (settled) {
+        running = false;
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    const wake = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
     };
 
     /* ── Listeners ─────────────────────────────────────────── */
@@ -81,6 +113,7 @@ export default function Cursor() {
       } else {
         setVariant("default");
       }
+      wake();
     };
 
     const onLeave = () => {
@@ -89,30 +122,17 @@ export default function Cursor() {
       dot.style.opacity = "0";
     };
 
-    /* ── Animation loop ────────────────────────────────────── */
-
-    const tick = () => {
-      ringX += (targetX - ringX) * RING_LERP;
-      ringY += (targetY - ringY) * RING_LERP;
-      dotX += (targetX - dotX) * DOT_LERP;
-      dotY += (targetY - dotY) * DOT_LERP;
-
-      ring.style.transform = `translate3d(${ringX.toFixed(1)}px, ${ringY.toFixed(1)}px, 0) translate(-50%, -50%)`;
-      dot.style.transform = `translate3d(${dotX.toFixed(1)}px, ${dotY.toFixed(1)}px, 0) translate(-50%, -50%)`;
-
-      raf = requestAnimationFrame(tick);
-    };
-
     /* ── Init ──────────────────────────────────────────────── */
 
     document.documentElement.style.cursor = "none";
     window.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerleave", onLeave);
     document.addEventListener("mouseleave", onLeave);
-    raf = requestAnimationFrame(tick);
+    wake();
 
     return () => {
       cancelAnimationFrame(raf);
+      running = false;
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("mouseleave", onLeave);

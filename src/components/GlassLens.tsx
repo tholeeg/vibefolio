@@ -43,6 +43,7 @@ export default function GlassLens() {
     let ly = ty;
     let active = false;
     let raf = 0;
+    let running = false;
 
     const setActive = (next: boolean) => {
       if (next === active) return;
@@ -53,15 +54,7 @@ export default function GlassLens() {
       b.style.opacity = op;
     };
 
-    const onMove = (e: PointerEvent) => {
-      tx = e.clientX;
-      ty = e.clientY;
-      const t = e.target as Element | null;
-      setActive(!!t?.closest("[data-lens='true']"));
-    };
-
     const tick = () => {
-      raf = requestAnimationFrame(tick);
       lx += (tx - lx) * LERP;
       ly += (ty - ly) * LERP;
       const transform = `translate3d(${lx.toFixed(1)}px, ${ly.toFixed(1)}px, 0) translate(-50%, -50%)`;
@@ -71,13 +64,35 @@ export default function GlassLens() {
          wavelengths around the lens. */
       a.style.transform = transform;
       b.style.transform = transform;
+
+      const settled = Math.abs(tx - lx) < 0.1 && Math.abs(ty - ly) < 0.1;
+      if (settled) {
+        running = false;
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    const wake = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+
+    const onMove = (e: PointerEvent) => {
+      tx = e.clientX;
+      ty = e.clientY;
+      const t = e.target as Element | null;
+      setActive(!!t?.closest("[data-lens='true']"));
+      wake();
     };
 
     window.addEventListener("pointermove", onMove, { passive: true });
-    raf = requestAnimationFrame(tick);
+    wake();
 
     return () => {
       cancelAnimationFrame(raf);
+      running = false;
       window.removeEventListener("pointermove", onMove);
     };
   }, [prefersReducedMotion, qualityTier]);

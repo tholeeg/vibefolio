@@ -64,11 +64,23 @@ export default function TenPrintCard() {
     let raf = 0;
     let last = performance.now();
     let rewriteCarry = 0;
+    let onscreen = false;
+
+    const io = new IntersectionObserver(
+      ([e]) => {
+        onscreen = !!e?.isIntersecting;
+      },
+      { rootMargin: "80px" },
+    );
+    io.observe(cvs);
 
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       const m = readMotion();
-      if (!m.isPageVisible) return;
+      if (!m.isPageVisible || !onscreen) {
+        last = now;
+        return;
+      }
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
 
@@ -127,6 +139,7 @@ export default function TenPrintCard() {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       cvs.removeEventListener("pointermove", onMove);
     };
   }, []);

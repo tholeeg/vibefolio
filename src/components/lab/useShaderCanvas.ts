@@ -8,9 +8,16 @@
  *
  * Honors `useMotion`: pauses when the tab is hidden, freezes time
  * (still renders one frame) when prefers-reduced-motion is set.
+ *
+ * Pauses the rAF loop entirely when the canvas is offscreen, via an
+ * IntersectionObserver. Resumes the moment it scrolls back into view.
+ *
+ * `extraUniforms` and `onFrame` are read through refs so passing a
+ * fresh inline object on every render does NOT recreate the WebGL
+ * context.
  */
 
-import { useEffect, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { readMotion } from "../../lib/useMotion";
 
@@ -42,7 +49,16 @@ export function useShaderCanvas(
   canvasRef: RefObject<HTMLCanvasElement | null>,
   options: ShaderCanvasOptions,
 ) {
-  const { fragmentShader, uniforms: extraUniforms, onFrame, dprMax = 1.5 } = options;
+  /* Stash mutable options in refs so re-renders don't tear down the
+     WebGL context. The fragment shader IS expected to be stable
+     (defined as a module-level const in every Lab card). */
+  const onFrameRef = useRef(options.onFrame);
+  onFrameRef.current = options.onFrame;
+  const extraUniformsRef = useRef(options.uniforms);
+  extraUniformsRef.current = options.uniforms;
+
+  const fragmentShader = options.fragmentShader;
+  const dprMax = options.dprMax ?? 1.5;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -70,14 +86,15 @@ export function useShaderCanvas(
     const material = new THREE.ShaderMaterial({
       vertexShader: SHARED_VERT,
       fragmentShader,
-      uniforms: { ...baseUniforms, ...(extraUniforms ?? {}) } as unknown as Record<
+      uniforms: { ...baseUniforms, ...(extraUniformsRef.current ?? {}) } as unknown as Record<
         string,
         THREE.IUniform
       >,
       depthTest: false,
       depthWrite: false,
     });
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
     /* ── Sizing ───────────────────────────────────────────────── */
@@ -101,6 +118,17 @@ export function useShaderCanvas(
     };
     canvas.addEventListener("pointermove", onMove);
 
+    /* ── Visibility gating ────────────────────────────────────── */
+
+    let onscreen = false;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        onscreen = !!entry?.isIntersecting;
+      },
+      { rootMargin: "80px" },
+    );
+    io.observe(canvas);
+
     /* ── Loop ─────────────────────────────────────────────────── */
 
     let raf = 0;
@@ -109,11 +137,14 @@ export function useShaderCanvas(
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       const motion = readMotion();
-      if (!motion.isPageVisible) return;
+      if (!motion.isPageVisible || !onscreen) {
+        last = now;
+        return;
+      }
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       if (!motion.prefersReducedMotion) baseUniforms.u_time.value += dt;
-      onFrame?.(baseUniforms, dt);
+      onFrameRef.current?.(baseUniforms, dt);
       renderer.render(scene, camera);
     };
 
@@ -122,10 +153,11 @@ export function useShaderCanvas(
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       canvas.removeEventListener("pointermove", onMove);
-      mesh.geometry.dispose();
+      geometry.dispose();
       material.dispose();
       renderer.dispose();
     };
-  }, [canvasRef, fragmentShader, extraUniforms, onFrame, dprMax]);
+  }, [canvasRef, fragmentShader, dprMax]);
 }

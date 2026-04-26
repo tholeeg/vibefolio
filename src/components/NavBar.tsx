@@ -142,7 +142,20 @@ export default function NavBar() {
           onClick={() => window.dispatchEvent(new CustomEvent("vibefolio:cmdk"))}
           className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.02] px-2.5 py-1.5 text-[#00FFFF] transition-all duration-300 hover:border-cyan-glow/40 hover:bg-white/[0.05]"
         >
-          <span className="material-symbols-outlined text-base">terminal</span>
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="4 17 10 11 4 5" />
+            <line x1="12" y1="19" x2="20" y2="19" />
+          </svg>
           <kbd className="font-label hidden text-[9px] uppercase tracking-[0.25em] text-white/55 md:inline">
             ⌘K
           </kbd>

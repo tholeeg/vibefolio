@@ -90,9 +90,18 @@ export default function SectionDivider({ index, label, next }: Props) {
     let last = performance.now();
     const interval = 1000 / STREAM_FPS;
     let raf = 0;
+    let onscreen = false;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        onscreen = !!e?.isIntersecting;
+      },
+      { rootMargin: "100px" },
+    );
+    io.observe(cvs);
 
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
+      if (!onscreen) return;
       if (now - last < interval) return;
       last = now;
 
@@ -111,7 +120,10 @@ export default function SectionDivider({ index, label, next }: Props) {
       }
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      io.disconnect();
+    };
   }, [prefersReducedMotion, isPageVisible]);
 
   return (

@@ -13,7 +13,6 @@ import {
   type MutableRefObject,
 } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -381,6 +380,7 @@ export default function Methodology() {
                 stencil: false,
               }}
               dpr={[1, 2]}
+              camera={{ position: [0, 0, 6.5], fov: 42, near: 0.1, far: 100 }}
               onPointerEnter={() => {
                 pointerCanvasRef.current = true;
               }}
@@ -391,7 +391,6 @@ export default function Methodology() {
                 shockRef.current = true;
               }}
             >
-              <PerspectiveCamera makeDefault position={[0, 0, 6.5]} fov={42} near={0.1} far={100} />
               <Scene
                 progressRef={progressRef}
                 stepTargetRef={stepTargetRef}

@@ -36,7 +36,7 @@ function publish() {
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let analyser: AnalyserNode | null = null;
-let analyserData: Uint8Array<ArrayBuffer> | null = null;
+let analyserData: Uint8Array | null = null;
 
 let droneNodes: { osc1: OscillatorNode; osc2: OscillatorNode; lfo: OscillatorNode }
   | null = null;
@@ -59,7 +59,7 @@ function ensureCtx(): AudioContext | null {
   analyser = ctx.createAnalyser();
   analyser.fftSize = 256;
   analyser.smoothingTimeConstant = 0.85;
-  analyserData = new Uint8Array(new ArrayBuffer(analyser.frequencyBinCount));
+  analyserData = new Uint8Array(analyser.frequencyBinCount);
 
   masterGain.connect(analyser);
   analyser.connect(ctx.destination);
