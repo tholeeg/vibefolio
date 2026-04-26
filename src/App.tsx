@@ -8,6 +8,7 @@ import { useMotion } from "./lib/useMotion";
 import { EASE } from "./lib/easings";
 import BackgroundShader from "./components/BackgroundShader";
 import Cursor from "./components/Cursor";
+import CommandPalette from "./components/CommandPalette";
 import NavBar from "./components/NavBar";
 import Hero from "./components/Hero";
 import ProjectGrid from "./components/ProjectGrid";
@@ -90,6 +91,7 @@ export default function App() {
       <BackgroundShader />
       <SmoothScroll />
       <Cursor />
+      <CommandPalette />
       <NavBar />
       {/* No pb-* here: avoids a phantom scroll notch under Methodology;
           the Footer is handled by GSAP `pinSpacing`. */}
@@ -98,15 +100,25 @@ export default function App() {
         style={{ overflowX: "clip", zIndex: "var(--z-content)" as unknown as number }}
       >
         <main className="min-h-0 min-w-0 w-full max-w-full pb-0">
-          <Hero />
+          <div data-section="hero">
+            <Hero />
+          </div>
           <SectionDivider index="01" label="OUTPUTS" next="PROJECTS" />
-          <ProjectGrid />
+          <div data-section="projects">
+            <ProjectGrid />
+          </div>
           <SectionDivider index="02" label="METHODOLOGY" next="PROCESS" />
-          <Methodology />
+          <div data-section="methodology">
+            <Methodology />
+          </div>
           <SectionDivider index="03" label="LAB" next="EXPERIMENTS" />
-          <Lab />
+          <div data-section="lab">
+            <Lab />
+          </div>
         </main>
-        <Footer />
+        <div data-section="footer">
+          <Footer />
+        </div>
       </div>
     </MotionProvider>
   );
