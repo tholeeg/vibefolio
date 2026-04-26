@@ -1,0 +1,44 @@
+---
+description: Vibefolio project conventions — stack overview, structure, design tokens
+alwaysApply: true
+---
+
+# Vibefolio — project conventions
+
+A live UI/UX showcase. Each section is an experimental piece. Code quality matters as much as the visual.
+
+## Stack
+
+- React 19 + TypeScript 5.7 (strict)
+- Vite 6 (target `es2022`)
+- Tailwind v4 with `@theme` design tokens (in `src/index.css`)
+- Three.js + `@react-three/fiber` + `@react-three/drei`
+- GSAP 3 + ScrollTrigger
+- Lenis for smooth scroll (NOT used when `prefers-reduced-motion`)
+
+## Folder layout
+
+- `src/components/` — one file per section (NavBar, Hero, ProjectGrid, Methodology, Footer)
+- `src/components/methodology/` — large shader/data assets that belong to a single section
+- `src/lib/` — cross-section primitives (`useMotion`, `MotionProvider`, `easings`, `lazyR3F`)
+
+When a component grows past ~400 LOC and contains shaders or data, split assets into a sibling folder named after the section.
+
+## Design tokens
+
+- Brand spectrum: `--color-cyan-deep` / `--color-cyan-pure` / `--color-cyan-glow` / `--color-violet-edge` / `--color-magenta-hot`
+- MD3 aliases (`--color-primary-fixed`, `--color-on-surface-variant`, …) are still wired for retro-compat — prefer brand tokens for NEW code.
+- Fluid display sizes: `--text-display-xl`, `--text-display-l`, `--text-display-m`, `--text-display-s`
+- Easings (CSS): `--ease-glide`, `--ease-spring`, `--ease-snap`, `--ease-out-expo`
+- Z-index scale: `--z-bg-shader`, `--z-content`, `--z-overlay`, `--z-nav`, `--z-cursor`, `--z-modal`
+
+## Accessibility / quality tiers
+
+`prefers-reduced-motion` and the `qualityTier` ("low" | "medium" | "high") are non-negotiable. See `vibefolio-motion.mdc`.
+
+## What we DO NOT do
+
+- No new fonts beyond Inter + JetBrains Mono.
+- No `position: fixed` z-index races — always use the named scale.
+- No leftover `Backup_*.tsx`, `dist/`, or duplicated scaffolds in the repo.
+- No code comments that paraphrase the line below them (see global rules).

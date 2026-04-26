@@ -1,0 +1,53 @@
+---
+description: Shader and R3F authoring conventions
+globs: src/components/**/*.ts,src/components/**/*.tsx
+alwaysApply: false
+---
+
+# Shader & R3F conventions
+
+## Where shader code lives
+
+- Co-locate shaders next to their consuming component:
+  ```
+  components/Methodology.tsx
+  components/methodology/
+    voxelIllustrativeShader.ts   ← exports vert/frag strings
+    abstractFormArchive.ts       ← scratch / archived formulas
+  ```
+- Export pairs as `*_VERT` / `*_FRAG` constants tagged `/* glsl */` for editor highlighting.
+
+## Uniform naming
+
+- `u_time`, `u_progress` (0..1 scroll), `u_step` (state index), `u_mouse3D`, `u_resolution`.
+- Shock / ripple events: `u_shockTime`, `u_shockOrigin` — single shock per frame, fired by setting `shockRef.current = true`.
+
+## Mandatory helpers in vertex shaders
+
+```glsl
+vec3 safeNorm(vec3 p) {
+  float l = length(p);
+  if (l < 1e-5) return vec3(0.0, 1.0, 0.0);
+  return p / l;
+}
+```
+
+Always guard `acos`, `normalize`, divisions when the input can be near zero.
+
+## TSL / WebGPU migration (target for Vague 5)
+
+When porting a GLSL pair to TSL:
+
+1. Keep the GLSL source in the same file under a `_LEGACY` constant for diff/review.
+2. Build the TSL graph as a function `buildXxxMaterial({ progress, time, mouse, … })` returning a `THREE.NodeMaterial`.
+3. Detect WebGPU support at canvas init; fall back to GLSL automatically.
+
+## R3F materials
+
+- Memoize material/geometry with `useMemo` (prevents reupload on re-render).
+- Dispose in the matching `useEffect` cleanup — both `geometry.dispose()` and `material.dispose()`.
+- For instanced geometries, also dispose the source `EdgesGeometry` and any `InstancedBufferGeometry`.
+
+## Blob / SDF style
+
+For organic squircles use the existing super-ellipse pattern (`x^n + y^n = 1`, `n = SUPER_N = 4`) — see `ProjectGrid.tsx`. Don't reinvent.

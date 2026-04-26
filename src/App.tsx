@@ -3,6 +3,9 @@ import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { lenisStore } from "./lenisStore";
+import { MotionProvider } from "./lib/MotionProvider";
+import { useMotion } from "./lib/useMotion";
+import { EASE } from "./lib/easings";
 import NavBar from "./components/NavBar";
 import Hero from "./components/Hero";
 import ProjectGrid from "./components/ProjectGrid";
@@ -14,10 +17,21 @@ gsap.registerPlugin(ScrollTrigger);
 
 const isPoc = new URLSearchParams(window.location.search).has("poc");
 
-export default function App() {
+function SmoothScroll() {
+  const { prefersReducedMotion } = useMotion();
+
   useEffect(() => {
-    if (isPoc) return;
-    const lenis = new Lenis();
+    if (prefersReducedMotion) {
+      // Native scroll only — no Lenis, no scrub. ScrollTriggers still work.
+      const onScroll = () => ScrollTrigger.update();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return () => window.removeEventListener("scroll", onScroll);
+    }
+
+    const lenis = new Lenis({
+      lerp: 0.08,
+      easing: EASE.lenisDefault,
+    });
     lenisStore.instance = lenis;
 
     lenis.on("scroll", ScrollTrigger.update);
@@ -53,14 +67,26 @@ export default function App() {
       lenis.destroy();
       lenisStore.instance = null;
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
-  if (isPoc) return <StandaloneProjectCard />;
+  return null;
+}
+
+export default function App() {
+  if (isPoc) {
+    return (
+      <MotionProvider>
+        <StandaloneProjectCard />
+      </MotionProvider>
+    );
+  }
 
   return (
-    <>
+    <MotionProvider>
+      <SmoothScroll />
       <NavBar />
-      {/* Pas de pb-* ici : évite un cran de scroll sous Methodology ; Footer géré par pinSpacing GSAP */}
+      {/* No pb-* here: avoids a phantom scroll notch under Methodology;
+          the Footer is handled by GSAP `pinSpacing`. */}
       <div className="relative w-full pb-0" style={{ overflowX: "clip" }}>
         <main className="min-h-0 min-w-0 w-full max-w-full pb-0">
           <Hero />
@@ -69,6 +95,6 @@ export default function App() {
         </main>
         <Footer />
       </div>
-    </>
+    </MotionProvider>
   );
 }

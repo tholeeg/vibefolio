@@ -1,58 +1,124 @@
 @import "tailwindcss";
 
-@theme {
-  --color-surface-bright: #393939;
-  --color-on-surface-variant: #b9cac9;
-  --color-on-tertiary: #383100;
-  --color-primary: #ffffff;
-  --color-surface-variant: #353535;
-  --color-surface-container-lowest: #0e0e0e;
-  --color-on-primary-fixed-variant: #004f4f;
-  --color-secondary-container: #571bc1;
-  --color-on-surface: #e2e2e2;
-  --color-secondary-fixed-dim: #d0bcff;
-  --color-secondary-fixed: #e9ddff;
-  --color-on-error-container: #ffdad6;
-  --color-primary-container: #00fbfb;
-  --color-on-primary-container: #007070;
-  --color-on-tertiary-fixed: #201c00;
-  --color-surface-dim: #0a0a0a;
-  --color-outline-variant: #3a4a49;
-  --color-on-background: #e2e2e2;
-  --color-inverse-on-surface: #303030;
-  --color-secondary: #d0bcff;
-  --color-on-secondary: #3c0091;
-  --color-primary-fixed-dim: #00dddd;
-  --color-surface-container-highest: #353535;
-  --color-error-container: #93000a;
-  --color-on-error: #690005;
-  --color-surface-container-high: #2a2a2a;
-  --color-surface-container-low: #1b1b1b;
-  --color-inverse-surface: #e2e2e2;
-  --color-tertiary-fixed: #fce442;
-  --color-on-tertiary-container: #716500;
-  --color-on-primary: #003737;
-  --color-tertiary-fixed-dim: #dec723;
-  --color-on-primary-fixed: #002020;
-  --color-on-secondary-fixed: #23005c;
-  --color-on-secondary-container: #c4abff;
-  --color-on-tertiary-fixed-variant: #504700;
-  --color-surface-container: #1f1f1f;
-  --color-outline: #839493;
-  --color-surface: #000000;
-  --color-tertiary-container: #fce442;
-  --color-error: #ffb4ab;
-  --color-surface-tint: #00dddd;
-  --color-tertiary: #ffffff;
-  --color-on-secondary-fixed-variant: #5516be;
-  --color-background: #000000;
-  --color-primary-fixed: #00fbfb;
-  --color-inverse-primary: #006a6a;
+/* ══════════════════════════════════════════════════════════════════════════
+   Design tokens v2 — Vibefolio signature
+   Cyber-cyan core · violet edge · magenta hot accent
+   ══════════════════════════════════════════════════════════════════════════ */
 
-  --font-headline: "Inter", sans-serif;
-  --font-body: "Manrope", sans-serif;
-  --font-label: "Space Grotesk", sans-serif;
+@theme {
+  /* ── Brand spectrum ─────────────────────────────────────────── */
+  --color-cyan-deep: #003a9b;
+  --color-cyan-pure: #00d4ff;
+  --color-cyan-glow: #00fbfb;
+  --color-cyan-soft: #96f5ff;
+  --color-violet-edge: #571bc1;
+  --color-violet-soft: #d0bcff;
+  --color-magenta-hot: #ff2d95;
+
+  /* ── Neutral surfaces ───────────────────────────────────────── */
+  --color-bg: #000000;
+  --color-bg-elevated: #0a0a0a;
+  --color-surface-1: #0e0e0e;
+  --color-surface-2: #1b1b1b;
+  --color-surface-3: #2a2a2a;
+  --color-surface-4: #353535;
+  --color-line: #3a4a49;
+  --color-ink: #e2e2e2;
+  --color-ink-muted: #b9cac9;
+  --color-ink-faint: #839493;
+
+  /* ── MD3 aliases (kept for retro-compat with existing classes) ─ */
+  --color-background: var(--color-bg);
+  --color-surface: var(--color-bg);
+  --color-surface-dim: var(--color-bg-elevated);
+  --color-surface-bright: var(--color-surface-4);
+  --color-surface-container-lowest: var(--color-surface-1);
+  --color-surface-container-low: var(--color-surface-2);
+  --color-surface-container: #1f1f1f;
+  --color-surface-container-high: var(--color-surface-3);
+  --color-surface-container-highest: var(--color-surface-4);
+  --color-surface-variant: var(--color-surface-4);
+  --color-on-background: var(--color-ink);
+  --color-on-surface: var(--color-ink);
+  --color-on-surface-variant: var(--color-ink-muted);
+  --color-outline: var(--color-ink-faint);
+  --color-outline-variant: var(--color-line);
+  --color-primary: #ffffff;
+  --color-on-primary: #003737;
+  --color-primary-container: var(--color-cyan-glow);
+  --color-on-primary-container: #007070;
+  --color-primary-fixed: var(--color-cyan-glow);
+  --color-on-primary-fixed: #002020;
+  --color-primary-fixed-dim: #00dddd;
+  --color-on-primary-fixed-variant: #004f4f;
+  --color-secondary: var(--color-violet-soft);
+  --color-on-secondary: #3c0091;
+  --color-secondary-container: var(--color-violet-edge);
+  --color-on-secondary-container: #c4abff;
+  --color-secondary-fixed: #e9ddff;
+  --color-secondary-fixed-dim: var(--color-violet-soft);
+  --color-on-secondary-fixed: #23005c;
+  --color-on-secondary-fixed-variant: #5516be;
+  --color-tertiary: #ffffff;
+  --color-on-tertiary: #383100;
+  --color-tertiary-container: #fce442;
+  --color-on-tertiary-container: #716500;
+  --color-tertiary-fixed: #fce442;
+  --color-tertiary-fixed-dim: #dec723;
+  --color-on-tertiary-fixed: #201c00;
+  --color-on-tertiary-fixed-variant: #504700;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+  --color-inverse-surface: var(--color-ink);
+  --color-inverse-on-surface: #303030;
+  --color-inverse-primary: #006a6a;
+  --color-surface-tint: var(--color-primary-fixed-dim);
+
+  /* ── Typography stack ──────────────────────────────────────────
+     We rely on Inter (variable axes 100..900) and JetBrains Mono.
+     `font-headline` and `font-body` map to the same family on
+     purpose: contrast comes from weight/letter-spacing axes, not
+     from a different typeface. `font-mono` is the new label /
+     terminal voice (replaces Space Grotesk + Manrope).         */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-headline: var(--font-sans);
+  --font-body: var(--font-sans);
+  --font-label: var(--font-mono);
+
+  /* ── Fluid display scale (signature sizes) ──────────────────── */
+  --text-display-xl: clamp(3.5rem, 12vw, 15rem);
+  --text-display-l: clamp(2.5rem, 7.5vw, 7.5rem);
+  --text-display-m: clamp(1.75rem, 4.5vw, 3.75rem);
+  --text-display-s: clamp(1.25rem, 2.8vw, 1.85rem);
+
+  /* ── Motion language ────────────────────────────────────────── */
+  --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-snap: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Z-index scale (named, prevents the "9999 race")
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --z-bg-shader: 0;
+  --z-content: 10;
+  --z-overlay: 50;
+  --z-nav: 100;
+  --z-cursor: 9000;
+  --z-modal: 9500;
+  --z-toast: 9800;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Reset + global typography defaults
+   ══════════════════════════════════════════════════════════════════════════ */
 
 html,
 body,
@@ -64,18 +130,26 @@ body,
   min-height: 100vh;
 }
 
-body {
-  background-color: #000000;
+html {
+  font-feature-settings: "ss01", "cv11", "calt";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* WebGL : évite le gap ~4px sous le canvas (alignement baseline) */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+}
+
+/* WebGL: avoid the ~4px baseline gap under canvases. */
 canvas {
   display: block !important;
   vertical-align: top;
   outline: none;
 }
 
-/* Methodology : hauteur stable, pas de “pixel rebelle” sous le canvas */
+/* Methodology: stable height, no rebel pixel under the canvas. */
 #methodology,
 #methodology * {
   box-sizing: border-box;
@@ -87,4 +161,31 @@ canvas {
 
 .kerning-tight {
   letter-spacing: -0.04em;
+}
+
+.kerning-wide {
+  letter-spacing: 0.18em;
+}
+
+/* Mono with terminal-style features (slashed zero, ligatures off for code-like clarity). */
+.font-label,
+.font-mono {
+  font-feature-settings: "zero", "ss02";
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Reduced motion — global guard
+   Components must still gate their JS animations behind useMotion(),
+   but this kills CSS transitions/animations as a defense in depth.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

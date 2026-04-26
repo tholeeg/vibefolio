@@ -1,0 +1,45 @@
+---
+description: Motion / accessibility / GPU tier rules — always honored
+alwaysApply: true
+---
+
+# Motion rules — non-negotiable
+
+Every animation, scroll-jacking, RAF loop, R3F canvas, GSAP timeline, and shader uniform must consult `useMotion()` (`src/lib/useMotion.ts`).
+
+## Required pattern
+
+```tsx
+const { prefersReducedMotion, qualityTier, isPageVisible } = useMotion();
+
+useEffect(() => {
+  if (prefersReducedMotion) return;        // no scroll-jacking, no scrub
+  if (!isPageVisible) return;              // pause when tab hidden
+  if (qualityTier === "low") return;       // skip the expensive layer
+
+  const ctx = gsap.context(() => { /* … */ }, scopeRef);
+  return () => ctx.revert();
+}, [prefersReducedMotion, qualityTier, isPageVisible]);
+```
+
+## Quality tier guidance
+
+- `low`: static fallback or 1× resolution canvas, no postprocessing, no compute shader.
+- `medium`: full geometry but cap pixel ratio at 1.5, disable bloom or replace with cheap glow.
+- `high`: everything on.
+
+## GSAP
+
+- Always wrap timelines in `gsap.context(() => …, scopeRef)` and `revert()` on cleanup.
+- Use named eases from `src/lib/easings.ts` (`GSAP_EASES.glide`, etc.) — no ad-hoc cubic-béziers.
+- Lenis-driven scroll: prefer the helper exposed in `src/lenisStore.ts`; never instantiate Lenis twice.
+
+## R3F
+
+- Heavy scenes (>50k particles, postprocessing, compute) MUST be wrapped in `<LazyMount>` from `src/lib/lazyR3F.tsx`.
+- Set `gl={{ antialias: false, powerPreference: "high-performance" }}` on Canvas.
+- Use `dpr={[1, 2]}` and clamp manually on `qualityTier === "low"`.
+
+## Reduced motion = no scroll-jacking
+
+When `prefersReducedMotion`, ScrollTrigger pinning is forbidden — replace with ordinary block layout. Transforms tied to `scrub: true` must short-circuit.
