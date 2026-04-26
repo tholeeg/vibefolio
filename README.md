@@ -11,8 +11,10 @@ React app.
     ├── React 19 · TypeScript 5.7 · Vite 6
     ├── Tailwind CSS v4
     ├── Three.js · @react-three/fiber · @react-three/drei
+    ├── @react-three/postprocessing (Bloom + Chromatic Aberration)
     ├── GSAP 3 + ScrollTrigger
     ├── Lenis (smooth scroll)
+    ├── Web Audio API (procedural drone + SFX, opt-in)
     └── Inter Variable + JetBrains Mono Variable
 ```
 
@@ -38,13 +40,19 @@ src/
 ├── lib/
 │   ├── useMotion.ts              # external store: prefersReducedMotion,
 │   │                             # qualityTier, isPageVisible
+│   ├── useWebGPU.ts              # one-shot navigator.gpu probe
+│   ├── useAudio.ts               # Web Audio singleton: drone + SFX +
+│   │                             # analyser tap (getAudioLevel)
 │   ├── MotionProvider.tsx        # writes data-quality, data-reduced-motion
 │   │                             # on <html>
 │   ├── lazyR3F.tsx               # IntersectionObserver-driven mount
 │   └── easings.ts                # shared easing curves (CSS / GSAP / Lenis)
 ├── components/
 │   ├── BackgroundShader.tsx      # global silk/aurora full-screen R3F pass
-│   ├── background/silkShader.ts  # GLSL source
+│   │                             # + Bloom + ChromaticAberration on `high`
+│   ├── background/silkShader.ts  # GLSL source (audio-reactive)
+│   ├── PostFXOverlay.tsx         # global vignette + scanlines + grain
+│   ├── GlassLens.tsx             # refractive lens following the pointer
 │   ├── Cursor.tsx                # custom dual-layer pointer
 │   ├── CommandPalette.tsx        # ⌘K vanilla command palette
 │   ├── NavBar.tsx                # magnetic + scrambled-text links
@@ -116,6 +124,48 @@ WebGL context once they enter the viewport.
 Esc              close the palette
 ```
 
+## Command palette actions
+
+```
+NAVIGATE  Hero · Projects · Methodology · Lab · Contact
+SYSTEM    Force quality LOW / MEDIUM / HIGH
+          Enable / disable ambient soundscape
+DEMOS     Hero · Solid / Spiral / Kinetic
+EXTERNAL  Mailto · GitHub
+```
+
+## Layered effects
+
+```
+z = 0     BackgroundShader  (silk pass + Bloom + ChromaticAberration)
+z = 10    Content           (sections + dividers)
+z = 50    PostFXOverlay     (vignette · scanlines · grain)
+z = 50    GlassLens         (pointer refraction, opt-in via [data-lens])
+z = 100   NavBar
+z = 9000  Cursor            (dual layer, mix-blend-mode: difference)
+z = 9500  CommandPalette
+```
+
+## Audio (opt-in)
+
+Procedural Web Audio, no samples shipped. Toggle via the command
+palette ("Enable ambient soundscape"). Two sawtooth oscillators a
+fifth apart, lowpass-filtered, slow LFO on the cutoff for a
+breathing pad. Short SFX (`blip`, `click`) on key interactions.
+
+When enabled, the silk shader pulses with the analyser RMS — the
+new `u_audio` uniform amplifies the spark veil and adds a +25 %
+intensity peak on transients.
+
+## WebGPU
+
+`useWebGPU()` performs a one-shot `navigator.gpu.requestAdapter()`
+probe at app start. The Footer's SYSTEM panel reflects the result
+(`WEBGPU` in magenta when an adapter is granted, dim `WEBGL2` as
+the universal fallback). The actual rendering still uses WebGL 2;
+the probe is an early scaffold for an upcoming TSL migration of
+Methodology.
+
 ## Project conventions
 
 The `.cursor/rules/` folder ships three rule files used by the AI
@@ -129,11 +179,12 @@ assistant in the IDE:
 
 ```
 index.css        ~7 KB
-index.js (app)   ~56 KB
+index.js (app)   ~59 KB
 gsap             ~28 KB
 lenis            ~5 KB
+postfx           ~18 KB    (@react-three/postprocessing + postprocessing)
 r3f              ~111 KB
 three            ~187 KB
                 ─────────
-total            ~395 KB
+total            ~415 KB
 ```
