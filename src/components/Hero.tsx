@@ -63,7 +63,7 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      className="h-screen overflow-hidden relative bg-black"
+      className="h-screen overflow-hidden relative"
     >
       <div
         ref={contentRef}

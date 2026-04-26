@@ -6,6 +6,8 @@ import { lenisStore } from "./lenisStore";
 import { MotionProvider } from "./lib/MotionProvider";
 import { useMotion } from "./lib/useMotion";
 import { EASE } from "./lib/easings";
+import BackgroundShader from "./components/BackgroundShader";
+import Cursor from "./components/Cursor";
 import NavBar from "./components/NavBar";
 import Hero from "./components/Hero";
 import ProjectGrid from "./components/ProjectGrid";
@@ -83,11 +85,16 @@ export default function App() {
 
   return (
     <MotionProvider>
+      <BackgroundShader />
       <SmoothScroll />
+      <Cursor />
       <NavBar />
       {/* No pb-* here: avoids a phantom scroll notch under Methodology;
           the Footer is handled by GSAP `pinSpacing`. */}
-      <div className="relative w-full pb-0" style={{ overflowX: "clip" }}>
+      <div
+        className="relative w-full pb-0"
+        style={{ overflowX: "clip", zIndex: "var(--z-content)" as unknown as number }}
+      >
         <main className="min-h-0 min-w-0 w-full max-w-full pb-0">
           <Hero />
           <ProjectGrid />
