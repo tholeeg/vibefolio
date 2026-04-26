@@ -8,6 +8,7 @@ import { useMotion } from "./lib/useMotion";
 import { EASE } from "./lib/easings";
 import BackgroundShader from "./components/BackgroundShader";
 import Cursor from "./components/Cursor";
+import GlassLens from "./components/GlassLens";
 import CommandPalette from "./components/CommandPalette";
 import NavBar from "./components/NavBar";
 import Hero from "./components/Hero";
@@ -91,6 +92,7 @@ export default function App() {
       <BackgroundShader />
       <SmoothScroll />
       <Cursor />
+      <GlassLens />
       <CommandPalette />
       <NavBar />
       {/* No pb-* here: avoids a phantom scroll notch under Methodology;

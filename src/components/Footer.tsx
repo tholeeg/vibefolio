@@ -13,6 +13,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useMotion } from "../lib/useMotion";
+import { useWebGPU } from "../lib/useWebGPU";
 import { GSAP_EASES } from "../lib/easings";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -37,6 +38,7 @@ export default function Footer() {
   const rootRef = useRef<HTMLElement>(null);
   const wordmarkRef = useRef<HTMLDivElement>(null);
   const { qualityTier, prefersReducedMotion } = useMotion();
+  const runtime = useWebGPU();
 
   useEffect(() => {
     if (!rootRef.current) return;
@@ -83,6 +85,7 @@ export default function Footer() {
       {/* ── Wordmark ───────────────────────────────────────────── */}
       <div ref={wordmarkRef} className="mb-16 md:mb-24">
         <div
+          data-lens="true"
           className="footer-wordmark font-headline leading-[0.85] tracking-tight"
           style={{
             fontSize: "var(--text-display-xl)",
@@ -162,7 +165,17 @@ export default function Footer() {
               {prefersReducedMotion ? "REDUCED" : "FULL"}
             </dd>
             <dt className="text-white/35">runtime</dt>
-            <dd className="text-white/70">WEBGL2</dd>
+            <dd
+              className={
+                runtime === "webgpu"
+                  ? "text-magenta-hot"
+                  : runtime === "webgl2"
+                  ? "text-white/70"
+                  : "text-white/35"
+              }
+            >
+              {runtime === "checking" ? "DETECT…" : runtime.toUpperCase()}
+            </dd>
             <dt className="text-white/35">commit</dt>
             <dd className="text-white/70">main</dd>
           </dl>

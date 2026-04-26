@@ -151,6 +151,7 @@ export default function Hero() {
         <div className="relative z-10 max-w-7xl pointer-events-none">
           <h1
             ref={headlineRef}
+            data-lens="true"
             className="font-headline leading-[0.85] kerning-tight select-none"
             style={{
               fontSize: "var(--text-display-xl)",

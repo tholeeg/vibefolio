@@ -44,6 +44,7 @@ export default function LabCard({ index, title, kind, blurb, children }: LabCard
   return (
     <article
       data-cursor="link"
+      data-lens="true"
       className="group relative flex h-[260px] flex-col overflow-hidden rounded-md border border-white/8 bg-white/[0.015] backdrop-blur-[2px] transition-all duration-300 ease-[var(--ease-glide)] hover:border-cyan-glow/35 hover:bg-white/[0.025]"
     >
       {/* ── Header ───────────────────────────────────────────────── */}
