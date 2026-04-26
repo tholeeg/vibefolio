@@ -15,6 +15,12 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import {
+  Bloom,
+  ChromaticAberration,
+  EffectComposer,
+} from "@react-three/postprocessing";
+import { BlendFunction, KernelSize } from "postprocessing";
 import * as THREE from "three";
 import { useMotion } from "../lib/useMotion";
 import { SILK_FRAG, SILK_VERT } from "./background/silkShader";
@@ -164,6 +170,27 @@ export default function BackgroundShader() {
           quality={quality}
           freezeTime={prefersReducedMotion}
         />
+        {/* Post-processing chain — only on quality === "high".
+            Bloom amplifies the cyan/violet highlights of the silk
+            shader, ChromaticAberration adds a faint RGB split that
+            ties together with the GlassLens fringes. */}
+        {qualityTier === "high" && (
+          <EffectComposer multisampling={0}>
+            <Bloom
+              intensity={0.55}
+              luminanceThreshold={0.08}
+              luminanceSmoothing={0.6}
+              kernelSize={KernelSize.LARGE}
+              mipmapBlur
+            />
+            <ChromaticAberration
+              blendFunction={BlendFunction.NORMAL}
+              offset={[0.0008, 0.0012] as unknown as THREE.Vector2}
+              radialModulation={false}
+              modulationOffset={0}
+            />
+          </EffectComposer>
+        )}
       </Canvas>
     </div>
   );

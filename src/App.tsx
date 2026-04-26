@@ -7,6 +7,7 @@ import { MotionProvider } from "./lib/MotionProvider";
 import { useMotion } from "./lib/useMotion";
 import { EASE } from "./lib/easings";
 import BackgroundShader from "./components/BackgroundShader";
+import PostFXOverlay from "./components/PostFXOverlay";
 import Cursor from "./components/Cursor";
 import GlassLens from "./components/GlassLens";
 import CommandPalette from "./components/CommandPalette";
@@ -90,6 +91,7 @@ export default function App() {
   return (
     <MotionProvider>
       <BackgroundShader />
+      <PostFXOverlay />
       <SmoothScroll />
       <Cursor />
       <GlassLens />

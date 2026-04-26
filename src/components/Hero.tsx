@@ -129,18 +129,6 @@ export default function Hero() {
       ref={sectionRef}
       className="relative h-screen overflow-hidden"
     >
-      {/* ── Subtle CRT scanlines overlay (foreground) ───────────────── */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(0deg, rgba(0,251,251,0.02) 0px, rgba(0,251,251,0.02) 1px, transparent 1px, transparent 3px)",
-          mixBlendMode: "overlay",
-          zIndex: 1,
-        }}
-      />
-
       <div
         ref={contentRef}
         className="flex flex-col justify-between px-6 md:px-12 pt-20 md:pt-28 pb-4 md:pb-6 h-full w-full"

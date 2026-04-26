@@ -13,6 +13,7 @@ export default defineConfig({
         manualChunks: {
           three: ["three"],
           r3f: ["@react-three/fiber", "@react-three/drei"],
+          postfx: ["@react-three/postprocessing", "postprocessing"],
           gsap: ["gsap"],
           lenis: ["lenis"],
         },
