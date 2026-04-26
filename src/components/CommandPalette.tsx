@@ -14,6 +14,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { GSAP_EASES } from "../lib/easings";
 import { setQualityTier, type QualityTier } from "../lib/useMotion";
+import { disableAudio, enableAudio, playSfx } from "../lib/useAudio";
 
 interface Action {
   id: string;
@@ -133,6 +134,24 @@ function buildActions(): Action[] {
       run: () => window.dispatchEvent(new KeyboardEvent("keydown", { key: "3" })),
     },
     {
+      id: "audio-on",
+      label: "Enable ambient soundscape",
+      hint: "Web Audio drone",
+      group: "system",
+      keywords: ["audio", "sound", "music", "drone", "ambient", "on", "enable"],
+      glyph: "♪",
+      run: () => void enableAudio(),
+    },
+    {
+      id: "audio-off",
+      label: "Disable ambient soundscape",
+      hint: "Mute everything",
+      group: "system",
+      keywords: ["audio", "sound", "mute", "off", "disable"],
+      glyph: "□",
+      run: () => disableAudio(),
+    },
+    {
       id: "external-email",
       label: "Email Thomas",
       hint: "thomas@indeed.com",
@@ -213,6 +232,7 @@ export default function CommandPalette() {
     setQuery("");
     setActive(0);
     inputRef.current?.focus();
+    playSfx("blip");
     if (overlayRef.current && panelRef.current) {
       gsap.fromTo(
         overlayRef.current,
@@ -250,6 +270,7 @@ export default function CommandPalette() {
       const target = filtered[active];
       if (target) {
         setOpen(false);
+        playSfx("click");
         target.run();
       }
     }
@@ -348,6 +369,7 @@ export default function CommandPalette() {
                       onMouseEnter={() => setActive(i)}
                       onClick={() => {
                         setOpen(false);
+                        playSfx("click");
                         a.run();
                       }}
                       className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${

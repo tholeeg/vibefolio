@@ -14,6 +14,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useMotion } from "../lib/useMotion";
 import { useWebGPU } from "../lib/useWebGPU";
+import { useAudio } from "../lib/useAudio";
 import { GSAP_EASES } from "../lib/easings";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -39,6 +40,7 @@ export default function Footer() {
   const wordmarkRef = useRef<HTMLDivElement>(null);
   const { qualityTier, prefersReducedMotion } = useMotion();
   const runtime = useWebGPU();
+  const audio = useAudio();
 
   useEffect(() => {
     if (!rootRef.current) return;
@@ -175,6 +177,10 @@ export default function Footer() {
               }
             >
               {runtime === "checking" ? "DETECT…" : runtime.toUpperCase()}
+            </dd>
+            <dt className="text-white/35">audio</dt>
+            <dd className={audio.isEnabled ? "text-cyan-glow" : "text-white/70"}>
+              {audio.isEnabled ? "DRONE" : "MUTED"}
             </dd>
             <dt className="text-white/35">commit</dt>
             <dd className="text-white/70">main</dd>

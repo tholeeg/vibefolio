@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CellShadedSphere from "./CellShadedSphere";
 import { useMotion } from "../lib/useMotion";
 import { GSAP_EASES } from "../lib/easings";
+import { playSfx } from "../lib/useAudio";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -47,6 +48,7 @@ export default function Hero() {
       duration: prefersReducedMotion ? 0 : 0.45,
       ease: GSAP_EASES.outExpo,
     });
+    playSfx("blip");
   }, [sphereMode, prefersReducedMotion]);
 
   /* ── Keyboard shortcuts: 1 / 2 / 3 switch the mode ─────────────────── */

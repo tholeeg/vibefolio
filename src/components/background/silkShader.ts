@@ -28,6 +28,7 @@ export const SILK_FRAG = /* glsl */ `
   uniform vec2  u_mouse;
   uniform float u_intensity;
   uniform float u_quality;
+  uniform float u_audio;   /* 0..1 — RMS volume from useAudio analyser */
 
   /* ── Noise helpers ──────────────────────────────────────────── */
 
@@ -102,6 +103,12 @@ export const SILK_FRAG = /* glsl */ `
     float scrollPulse = 0.5 + 0.5 * sin(scroll * 6.2831);
     col += hot * spark * scrollPulse * 0.06;
 
+    /* Audio reactivity — drone breathes through the entire field,
+       pumps the spark amplitude, and adds a soft cyan wash on peaks. */
+    float audio = clamp(u_audio, 0.0, 1.0);
+    col += glow * spark * audio * 0.35;
+    col += deep * audio * 0.25;
+
     /* Pointer aura — soft cyan halo around the cursor. */
     float md = length(p - u_mouse);
     col += glow * exp(-md * 3.5) * 0.10;
@@ -117,8 +124,9 @@ export const SILK_FRAG = /* glsl */ `
       col += grain;
     }
 
-    /* Master intensity (kept low — this is BACKGROUND, never foreground). */
-    col *= u_intensity;
+    /* Master intensity (kept low — this is BACKGROUND, never foreground).
+       Audio adds a small extra punch on top so the boost is felt. */
+    col *= u_intensity * (1.0 + audio * 0.25);
 
     gl_FragColor = vec4(col, 1.0);
   }

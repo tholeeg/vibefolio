@@ -23,18 +23,20 @@ import {
 import { BlendFunction, KernelSize } from "postprocessing";
 import * as THREE from "three";
 import { useMotion } from "../lib/useMotion";
+import { getAudioLevel } from "../lib/useAudio";
 import { SILK_FRAG, SILK_VERT } from "./background/silkShader";
 
 const MOUSE_LERP = 0.06;
 const SCROLL_LERP = 0.08;
 
 interface UniformsRefs {
-  time: { value: number };
-  resolution: { value: THREE.Vector2 };
-  scroll: { value: number };
-  mouse: { value: THREE.Vector2 };
-  intensity: { value: number };
-  quality: { value: number };
+  u_time: { value: number };
+  u_resolution: { value: THREE.Vector2 };
+  u_scroll: { value: number };
+  u_mouse: { value: THREE.Vector2 };
+  u_intensity: { value: number };
+  u_quality: { value: number };
+  u_audio: { value: number };
 }
 
 function SilkPlane({
@@ -53,24 +55,25 @@ function SilkPlane({
 
   const uniforms = useMemo<UniformsRefs>(
     () => ({
-      time: { value: 0 },
-      resolution: { value: new THREE.Vector2(size.width, size.height) },
-      scroll: { value: 0 },
-      mouse: { value: new THREE.Vector2(0, 0) },
-      intensity: { value: intensity },
-      quality: { value: quality },
+      u_time: { value: 0 },
+      u_resolution: { value: new THREE.Vector2(size.width, size.height) },
+      u_scroll: { value: 0 },
+      u_mouse: { value: new THREE.Vector2(0, 0) },
+      u_intensity: { value: intensity },
+      u_quality: { value: quality },
+      u_audio: { value: 0 },
     }),
     [], // create once; we mutate .value each frame
   );
 
   // Push static settings when they change.
   useEffect(() => {
-    uniforms.intensity.value = intensity;
-    uniforms.quality.value = quality;
+    uniforms.u_intensity.value = intensity;
+    uniforms.u_quality.value = quality;
   }, [intensity, quality, uniforms]);
 
   useEffect(() => {
-    uniforms.resolution.value.set(size.width, size.height);
+    uniforms.u_resolution.value.set(size.width, size.height);
   }, [size, uniforms]);
 
   // Pointer + scroll listeners (window-level so we follow the user
@@ -95,9 +98,13 @@ function SilkPlane({
   }, []);
 
   useFrame((_, dt) => {
-    if (!freezeTime) uniforms.time.value += dt;
-    uniforms.mouse.value.lerp(targetMouse.current, MOUSE_LERP);
-    uniforms.scroll.value += (targetScroll.current - uniforms.scroll.value) * SCROLL_LERP;
+    if (!freezeTime) uniforms.u_time.value += dt;
+    uniforms.u_mouse.value.lerp(targetMouse.current, MOUSE_LERP);
+    uniforms.u_scroll.value += (targetScroll.current - uniforms.u_scroll.value) * SCROLL_LERP;
+    /* Read the analyser ourselves so an audio-disabled session
+       costs nothing more than a single conditional in getAudioLevel. */
+    const target = getAudioLevel();
+    uniforms.u_audio.value += (target - uniforms.u_audio.value) * 0.18;
   });
 
   // Avoid visible color banding on the gradient veils.
