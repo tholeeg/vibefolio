@@ -1,9 +1,10 @@
 # Production compose file — copy this onto your Windows Docker host.
 #
-# After pulling: `docker compose pull && docker compose up -d`
+# Recommended location: C:\Docker\vibefolio\docker-compose.yml
+# Run with PowerShell:  docker compose pull ; docker compose up -d
 #
-# The container exposes port 80 internally. Pick ONE of the routing
-# strategies below depending on the reverse proxy you already use.
+# The container exposes port 80 internally. Pick ONE strategy below
+# depending on how Cloudflare is wired to your host.
 
 services:
   vibefolio:
@@ -11,28 +12,24 @@ services:
     container_name: vibefolio
     restart: unless-stopped
 
-    # ── Strategy A — Reverse-proxy on the host (default) ───────────
-    # The container is reachable on http://localhost:8080 of the
-    # Docker host. Point your existing reverse proxy (Nginx Proxy
-    # Manager, IIS+ARR, raw Nginx, Caddy, etc.) at that target for
-    # https://vibefolio.thomasleguern.com.
+    # ── Strategy A — cloudflared as a Windows service / .exe ───────
+    # cloudflared runs natively on Windows and reaches the container
+    # through the host loopback. No port is exposed to the LAN.
+    # In your Cloudflare Zero Trust → Tunnels → Public Hostname, add:
+    #   vibefolio.thomasleguern.com  →  http://localhost:8080
     ports:
       - "127.0.0.1:8080:80"
 
-    # ── Strategy B — Traefik labels (uncomment if you use Traefik) ──
-    # Make sure the `proxy` network already exists and Traefik is
-    # configured with HTTP→HTTPS redirection + a Let's Encrypt resolver
-    # named `letsencrypt`. Remove the `ports:` block above if you use
-    # this strategy.
+    # ── Strategy B — cloudflared running in Docker ─────────────────
+    # If your cloudflared container already exists, attach this
+    # service to its network and remove the `ports:` block above.
+    # In Cloudflare Zero Trust → Public Hostname, target:
+    #   http://vibefolio:80
     #
     # networks:
-    #   - proxy
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.vibefolio.rule=Host(`vibefolio.thomasleguern.com`)"
-    #   - "traefik.http.routers.vibefolio.entrypoints=websecure"
-    #   - "traefik.http.routers.vibefolio.tls.certresolver=letsencrypt"
-    #   - "traefik.http.services.vibefolio.loadbalancer.server.port=80"
+    #   - cloudflared
+    # (Adjust the network name to match what `docker network ls`
+    #  shows for your cloudflared setup.)
 
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
@@ -42,5 +39,5 @@ services:
 
 # Uncomment if you use Strategy B:
 # networks:
-#   proxy:
+#   cloudflared:
 #     external: true

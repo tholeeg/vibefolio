@@ -210,22 +210,31 @@ make the package public on
 (Package settings → Change visibility → Public) so the server can
 pull without credentials.
 
-### Server (Docker on Windows)
+### Server (Docker Desktop on Windows 11, behind Cloudflare)
 
-Copy `docker-compose.yml` to a folder on the host (e.g. `C:\docker\vibefolio`),
+Copy `docker-compose.yml` to `C:\Docker\vibefolio\docker-compose.yml`,
 then in PowerShell:
 
 ```powershell
-cd C:\docker\vibefolio
+cd C:\Docker\vibefolio
 docker compose pull
 docker compose up -d
 docker compose logs -f
 ```
 
-The container exposes its Nginx on `127.0.0.1:8080` of the host by
-default. Point your existing reverse proxy at that target for
-`https://vibefolio.thomasleguern.com`. To use Traefik labels
-instead, see the commented `Strategy B` block in `docker-compose.yml`.
+The container exposes its Nginx on `127.0.0.1:8080` of the host. In
+the Cloudflare Zero Trust dashboard
+(`https://one.dash.cloudflare.com`):
+
+1. **Tunnels** → pick the existing tunnel that already serves
+   `chart.thomasleguern.com`.
+2. **Public Hostnames** → **Add a public hostname**.
+3. Subdomain `vibefolio` · Domain `thomasleguern.com` · Service
+   `HTTP://localhost:8080` (or `http://vibefolio:80` if cloudflared
+   runs in Docker — see Strategy B in the compose file).
+
+DNS records are created automatically by Cloudflare Tunnel. No port
+forwarding on the router. No reverse proxy on the host.
 
 ### Update workflow
 
