@@ -56,9 +56,11 @@ const STEPS = [
    Nuage de points (THREE.Points) — BoxGeometry subdivisée, pas de mesh continu
    ══════════════════════════════════════════════════════════════════════════ */
 
-/** 500k points aléatoires dans un cube 2×2×2 — bien plus dense que BoxGeometry (surface only). */
+/** Random points inside a 2×2×2 cube — denser than BoxGeometry (surface-only). */
 function buildPointCloudFromBox(): THREE.BufferGeometry {
-  const COUNT = 1_000_000;
+  /* Cut from 1M → 250k: visually almost identical at this scale and
+     the GPU is no longer the bottleneck on integrated chips. */
+  const COUNT = 250_000;
   const pos = new Float32Array(COUNT * 3);
   for (let i = 0; i < COUNT; i++) {
     const i3 = i * 3;

@@ -62,15 +62,6 @@ function buildActions(): Action[] {
       run: () => scrollTo("[data-section='methodology']"),
     },
     {
-      id: "nav-lab",
-      label: "Lab",
-      hint: "Real-time experiments",
-      group: "navigate",
-      keywords: ["lab", "experiments", "shaders", "demos"],
-      glyph: "◉",
-      run: () => scrollTo("[data-section='lab']"),
-    },
-    {
       id: "nav-contact",
       label: "Contact",
       hint: "Footer",

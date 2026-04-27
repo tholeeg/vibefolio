@@ -5,7 +5,6 @@ import { lenisStore } from "../lenisStore";
 const NAV_LINKS = [
   { label: "PROJETS", target: "#projets" },
   { label: "METHODOLOGY", target: "#methodology" },
-  { label: "LAB", target: "#lab" },
 ];
 
 const SCROLL_EASING = (t: number) =>

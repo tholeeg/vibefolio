@@ -118,12 +118,6 @@ export const SILK_FRAG = /* glsl */ `
     float vignette = smoothstep(1.55, 0.55, r);
     col *= vignette;
 
-    /* Optional subtle film grain (off on quality<0.5). */
-    if (u_quality > 0.5) {
-      float grain = (hash(uv * u_resolution + t * 137.0) - 0.5) * 0.025;
-      col += grain;
-    }
-
     /* Master intensity (kept low — this is BACKGROUND, never foreground).
        Audio adds a small extra punch on top so the boost is felt. */
     col *= u_intensity * (1.0 + audio * 0.25);
