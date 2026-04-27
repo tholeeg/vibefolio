@@ -10,7 +10,7 @@ React app.
 └── stack
     ├── React 19 · TypeScript 5.7 · Vite 6
     ├── Tailwind CSS v4
-    ├── Three.js · @react-three/fiber · @react-three/drei
+    ├── Three.js · @react-three/fiber
     ├── @react-three/postprocessing (Bloom + Chromatic Aberration)
     ├── GSAP 3 + ScrollTrigger
     ├── Lenis (smooth scroll)
@@ -179,12 +179,70 @@ assistant in the IDE:
 
 ```
 index.css        ~7 KB
-index.js (app)   ~59 KB
+index.js (app)   ~116 KB
 gsap             ~28 KB
 lenis            ~5 KB
 postfx           ~18 KB    (@react-three/postprocessing + postprocessing)
-r3f              ~111 KB
-three            ~187 KB
+r3f              ~54 KB
+three            ~188 KB
                 ─────────
-total            ~415 KB
+total            ~416 KB
 ```
+
+## Deployment (Docker)
+
+The app is shipped as a tiny static-Nginx container (~30 MB).
+
+### CI → GHCR
+
+`.github/workflows/docker-publish.yml` builds a `linux/amd64` image
+on every push to `main` and on `v*` tags, then publishes it to
+GitHub Container Registry:
+
+```
+ghcr.io/tholeeg/vibefolio:latest
+ghcr.io/tholeeg/vibefolio:sha-<short>   # for rollbacks
+```
+
+No secrets needed — `GITHUB_TOKEN` is enough. After the first push,
+make the package public on
+`https://github.com/tholeeg/vibefolio/pkgs/container/vibefolio`
+(Package settings → Change visibility → Public) so the server can
+pull without credentials.
+
+### Server (Docker on Windows)
+
+Copy `docker-compose.yml` to a folder on the host (e.g. `C:\docker\vibefolio`),
+then in PowerShell:
+
+```powershell
+cd C:\docker\vibefolio
+docker compose pull
+docker compose up -d
+docker compose logs -f
+```
+
+The container exposes its Nginx on `127.0.0.1:8080` of the host by
+default. Point your existing reverse proxy at that target for
+`https://vibefolio.thomasleguern.com`. To use Traefik labels
+instead, see the commented `Strategy B` block in `docker-compose.yml`.
+
+### Update workflow
+
+```powershell
+docker compose pull
+docker compose up -d --remove-orphans
+docker image prune -f
+```
+
+### Rollback
+
+```powershell
+# Pin a specific build (tags are listed on GHCR).
+$env:VIBEFOLIO_TAG = "sha-abc1234"
+docker compose pull
+docker compose up -d
+```
+
+To wire that, replace `:latest` with `:${VIBEFOLIO_TAG:-latest}` in
+`docker-compose.yml`.
