@@ -11,7 +11,6 @@ React app.
     ├── React 19 · TypeScript 5.7 · Vite 6
     ├── Tailwind CSS v4
     ├── Three.js · @react-three/fiber
-    ├── @react-three/postprocessing (Bloom + Chromatic Aberration)
     ├── GSAP 3 + ScrollTrigger
     ├── Lenis (smooth scroll)
     ├── Web Audio API (procedural drone + SFX, opt-in)
@@ -49,9 +48,8 @@ src/
 │   └── easings.ts                # shared easing curves (CSS / GSAP / Lenis)
 ├── components/
 │   ├── BackgroundShader.tsx      # global silk/aurora full-screen R3F pass
-│   │                             # + Bloom + ChromaticAberration on `high`
 │   ├── background/silkShader.ts  # GLSL source (audio-reactive)
-│   ├── PostFXOverlay.tsx         # global vignette + scanlines + grain
+│   ├── PostFXOverlay.tsx         # global vignette + scanlines (CSS only)
 │   ├── GlassLens.tsx             # refractive lens following the pointer
 │   ├── Cursor.tsx                # custom dual-layer pointer
 │   ├── CommandPalette.tsx        # ⌘K vanilla command palette
@@ -61,16 +59,6 @@ src/
 │   │                             # dots / kinetic gyroscope)
 │   ├── ProjectGrid.tsx           # blob-physics canvas + project cards
 │   ├── Methodology.tsx           # 3-stage pinned point cloud + scroll
-│   ├── Lab.tsx                   # 6 real-time experiment cards
-│   ├── lab/
-│   │   ├── useShaderCanvas.ts    # vanilla Three.js fullscreen-plane runtime
-│   │   ├── LabCard.tsx           # shared card shell + FPS probe + lazy mount
-│   │   ├── AuroraCard.tsx        # GLSL — domain-warped FBM
-│   │   ├── VoronoiCard.tsx       # GLSL — phase-pulsing cells
-│   │   ├── MetaballsCard.tsx     # GLSL — orbiting energy spheres
-│   │   ├── CurlNoiseCard.tsx     # canvas2d — curl-noise particle field
-│   │   ├── TenPrintCard.tsx      # canvas2d — C64 maze with hover wave
-│   │   └── AsciiDonutCard.tsx    # canvas2d — Andy Sloane's torus, mono
 │   ├── SectionDivider.tsx        # 64px terminal-style separator
 │   ├── Footer.tsx                # closing terminal panel + ⌘K CTA
 │   └── …
@@ -127,7 +115,7 @@ Esc              close the palette
 ## Command palette actions
 
 ```
-NAVIGATE  Hero · Projects · Methodology · Lab · Contact
+NAVIGATE  Hero · Projects · Methodology · Contact
 SYSTEM    Force quality LOW / MEDIUM / HIGH
           Enable / disable ambient soundscape
 DEMOS     Hero · Solid / Spiral / Kinetic
@@ -137,9 +125,9 @@ EXTERNAL  Mailto · GitHub
 ## Layered effects
 
 ```
-z = 0     BackgroundShader  (silk pass + Bloom + ChromaticAberration)
+z = 0     BackgroundShader  (silk pass)
 z = 10    Content           (sections + dividers)
-z = 50    PostFXOverlay     (vignette · scanlines · grain)
+z = 50    PostFXOverlay     (vignette · scanlines)
 z = 50    GlassLens         (pointer refraction, opt-in via [data-lens])
 z = 100   NavBar
 z = 9000  Cursor            (dual layer, mix-blend-mode: difference)
@@ -179,14 +167,13 @@ assistant in the IDE:
 
 ```
 index.css        ~7 KB
-index.js (app)   ~116 KB
+index.js (app)   ~110 KB
 gsap             ~28 KB
 lenis            ~5 KB
-postfx           ~18 KB    (@react-three/postprocessing + postprocessing)
 r3f              ~54 KB
 three            ~188 KB
                 ─────────
-total            ~416 KB
+total            ~392 KB
 ```
 
 ## Deployment (Docker)
@@ -222,36 +209,42 @@ docker compose up -d
 docker compose logs -f
 ```
 
-The container exposes its Nginx on `127.0.0.1:8080` of the host. In
-the Cloudflare Zero Trust dashboard
+The compose file attaches `vibefolio` to the existing
+`chart-generator_chart-net` Docker network so the dockerised
+`chart-cloudflared` container reaches it by name. No port is
+exposed on the host.
+
+In the Cloudflare Zero Trust dashboard
 (`https://one.dash.cloudflare.com`):
 
 1. **Tunnels** → pick the existing tunnel that already serves
    `chart.thomasleguern.com`.
 2. **Public Hostnames** → **Add a public hostname**.
 3. Subdomain `vibefolio` · Domain `thomasleguern.com` · Service
-   `HTTP://localhost:8080` (or `http://vibefolio:80` if cloudflared
-   runs in Docker — see Strategy B in the compose file).
+   `http://vibefolio:80`.
 
 DNS records are created automatically by Cloudflare Tunnel. No port
 forwarding on the router. No reverse proxy on the host.
 
-### Update workflow
+### Auto-updates (Watchtower)
+
+The host already runs a Watchtower container. The
+`com.centurylinklabs.watchtower.enable=true` label on the compose
+service opts vibefolio in (label-only mode) and is harmless in
+all-mode. After each push to `main`, GHCR rebuilds `:latest`,
+Watchtower polls, pulls, and restarts the container automatically.
+
+To force a refresh manually:
 
 ```powershell
-docker compose pull
-docker compose up -d --remove-orphans
-docker image prune -f
+docker exec watchtower /watchtower --run-once vibefolio
 ```
 
 ### Rollback
 
 ```powershell
 # Pin a specific build (tags are listed on GHCR).
-$env:VIBEFOLIO_TAG = "sha-abc1234"
-docker compose pull
-docker compose up -d
+docker pull ghcr.io/tholeeg/vibefolio:sha-abc1234
+docker tag  ghcr.io/tholeeg/vibefolio:sha-abc1234 ghcr.io/tholeeg/vibefolio:latest
+docker compose up -d --force-recreate vibefolio
 ```
-
-To wire that, replace `:latest` with `:${VIBEFOLIO_TAG:-latest}` in
-`docker-compose.yml`.

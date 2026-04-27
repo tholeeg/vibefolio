@@ -1,10 +1,19 @@
 # Production compose file — copy this onto your Windows Docker host.
 #
-# Recommended location: C:\Docker\vibefolio\docker-compose.yml
-# Run with PowerShell:  docker compose pull ; docker compose up -d
+# Location on the server: C:\Docker\vibefolio\docker-compose.yml
 #
-# The container exposes port 80 internally. Pick ONE strategy below
-# depending on how Cloudflare is wired to your host.
+# Setup:
+#   - Cloudflare Tunnel runs as a Docker container (`chart-cloudflared`)
+#     attached to the `chart-generator_chart-net` network.
+#   - This service joins the same network so cloudflared can reach it
+#     by container name. No port is exposed on the host.
+#
+# Cloudflare Zero Trust → Tunnels → Public Hostname:
+#   vibefolio.thomasleguern.com  →  http://vibefolio:80
+#
+# Auto-updates are handled by the existing Watchtower container on the
+# host. The label below opts this service in for hosts running
+# Watchtower in "label-only" mode (and is harmless in "all" mode).
 
 services:
   vibefolio:
@@ -12,24 +21,11 @@ services:
     container_name: vibefolio
     restart: unless-stopped
 
-    # ── Strategy A — cloudflared as a Windows service / .exe ───────
-    # cloudflared runs natively on Windows and reaches the container
-    # through the host loopback. No port is exposed to the LAN.
-    # In your Cloudflare Zero Trust → Tunnels → Public Hostname, add:
-    #   vibefolio.thomasleguern.com  →  http://localhost:8080
-    ports:
-      - "127.0.0.1:8080:80"
+    networks:
+      - cloudflared
 
-    # ── Strategy B — cloudflared running in Docker ─────────────────
-    # If your cloudflared container already exists, attach this
-    # service to its network and remove the `ports:` block above.
-    # In Cloudflare Zero Trust → Public Hostname, target:
-    #   http://vibefolio:80
-    #
-    # networks:
-    #   - cloudflared
-    # (Adjust the network name to match what `docker network ls`
-    #  shows for your cloudflared setup.)
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
 
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
@@ -37,7 +33,7 @@ services:
       timeout: 3s
       retries: 3
 
-# Uncomment if you use Strategy B:
-# networks:
-#   cloudflared:
-#     external: true
+networks:
+  cloudflared:
+    name: chart-generator_chart-net
+    external: true
