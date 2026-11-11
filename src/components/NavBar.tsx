@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { lenisStore } from "../lenisStore";
+import AccountMenu from "./AccountMenu";
 
 const NAV_LINKS = [
   { label: "PROJETS", target: "#projets" },
@@ -125,7 +126,7 @@ export default function NavBar() {
       <div className="text-xl font-black tracking-tighter text-white hover:text-[#00FFFF] transition-colors">
         Thomas Le Guern
       </div>
-      <div className="hidden md:flex gap-12 items-center">
+      <div className="ml-auto hidden md:flex gap-12 items-center">
         {NAV_LINKS.map((link) => (
           <MagneticLink
             key={link.target}
@@ -159,6 +160,9 @@ export default function NavBar() {
             ⌘K
           </kbd>
         </button>
+      </div>
+      <div className="ml-6 flex items-center md:ml-12">
+        <AccountMenu />
       </div>
     </nav>
   );
